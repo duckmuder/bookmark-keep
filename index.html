@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>網址關鍵字分類 &amp; Google Keep 整理助手</title>
+  <title>網址與文案關鍵字分類 &amp; Google Keep 整理助手</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -37,14 +37,18 @@
           </svg>
         </div>
         <div>
-          <h1 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">網址關鍵字分類助手</h1>
-          <p class="text-xs text-gray-500">讀取網頁標題與內文萃取關鍵字，一鍵複製或分享至 Google Keep</p>
+          <h1 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">網址與文案關鍵字分類助手</h1>
+          <p class="text-xs text-gray-500">智慧判斷教學／美食／購物等語意分類，一鍵複製存入 Google Keep</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="openAiBtn" type="button" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 transition cursor-pointer inline-flex items-center gap-1.5">
+          <span id="aiBadgeDot" class="w-2 h-2 rounded-full bg-gray-300"></span>
+          <span>AI 語意設定</span>
+        </button>
         <button id="openRulesBtn" type="button" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 transition cursor-pointer">
-          自訂關鍵字規則
+          自訂規則
         </button>
         <a href="https://keep.google.com/" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg bg-amber-400 hover:bg-amber-500 text-amber-950 transition inline-flex items-center gap-1.5 shadow-sm">
           <span>開啟 Google Keep</span>
@@ -63,7 +67,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <p class="leading-relaxed">
-        <strong>使用說明：</strong>貼上公開網址後會自動嘗試讀取該網頁的標題、摘要與內文來萃取 <strong>#關鍵字標籤</strong>；若遇需登入或阻擋讀取的網站，也可在下方補充貼上內文片段萃取關鍵字，最後點「複製並開 Keep」即可存入 Google Keep。
+        <strong>雙引擎語意分類：</strong>內建<strong>語意計分引擎</strong>，就算文案裡沒寫「教學」或「美食」，也能從語氣與詞彙（如「步驟／只要／設定」vs「湯頭／訂位／必點」）自動分辨；若在右上角「AI 語意設定」填入您的 Gemini API Key，還能直接由 AI 深度讀懂整段文案並精準分類！
       </p>
     </div>
   </div>
@@ -74,38 +78,37 @@
     <section class="bg-white rounded-2xl border border-gray-200/80 keep-shadow p-4 sm:p-6">
       <form id="urlForm" class="space-y-4">
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label for="urlInput" class="block text-sm font-semibold text-gray-800">貼上網址</label>
-            <label class="inline-flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer select-none">
-              <input id="autoFetchToggle" type="checkbox" checked class="rounded border-gray-300 text-amber-500 focus:ring-amber-400" />
-              <span>自動讀取網頁內容萃取關鍵字</span>
-            </label>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <label for="urlInput" class="block text-sm font-semibold text-gray-800">貼上網址或文案內容</label>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" id="demoFoodBtn" class="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-800 text-xs font-medium transition cursor-pointer">
+                填入美食範例
+              </button>
+              <button type="button" id="demoTutorialBtn" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-medium transition cursor-pointer">
+                填入教學範例
+              </button>
+              <label class="inline-flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer select-none ml-1">
+                <input id="autoFetchToggle" type="checkbox" checked class="rounded border-gray-300 text-amber-500 focus:ring-amber-400" />
+                <span>含網址時自動抓內文</span>
+              </label>
+            </div>
           </div>
-          <div class="flex flex-col sm:flex-row gap-2.5">
-            <input
-              id="urlInput"
-              type="text"
-              placeholder="例如：https://www.youtube.com/watch?v=... 或任何文章、購物網址"
-              class="flex-1 rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
-              required
-            />
-            <button
-              id="submitBtn"
-              type="submit"
-              class="px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 disabled:opacity-60 text-white text-sm font-semibold transition shrink-0 cursor-pointer"
-            >
-              讀取內容並分類
-            </button>
-          </div>
+          <textarea
+            id="urlInput"
+            rows="3"
+            placeholder="貼上任何網址（https://...）、整段社群貼文、食記或教學筆記，系統會自動判斷主題並加上分類標籤..."
+            class="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 resize-y"
+            required
+          ></textarea>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label for="titleInput" class="block text-xs font-medium text-gray-600 mb-1">標題 / 備註（選填，留空將自動抓取）</label>
+            <label for="titleInput" class="block text-xs font-medium text-gray-600 mb-1">標題（選填，留空將自動從文案或網頁擷取）</label>
             <input
               id="titleInput"
               type="text"
-              placeholder="留空則自動讀取網頁標題"
+              placeholder="留空則自動產生標題"
               class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
           </div>
@@ -114,20 +117,21 @@
             <input
               id="customTagsInput"
               type="text"
-              placeholder="例如：必看, 週末靈感"
+              placeholder="例如：必看, 靈感"
               class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
           </div>
         </div>
 
-        <div>
-          <label for="snippetInput" class="block text-xs font-medium text-gray-600 mb-1">網頁內文 / 摘要補充（選填：若網站需登入無法自動讀取，可貼上文字來萃取關鍵字）</label>
-          <textarea
-            id="snippetInput"
-            rows="2"
-            placeholder="可選填貼上網頁內文片段，系統會一併分析並取出關鍵字..."
-            class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-y"
-          ></textarea>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-xs text-gray-400">支援純文案自動語意分類、純網址讀取，或「文案 + 網址」混合貼上</p>
+          <button
+            id="submitBtn"
+            type="submit"
+            class="px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 disabled:opacity-60 text-white text-sm font-semibold transition shrink-0 cursor-pointer"
+          >
+            讀取文案並加上分類
+          </button>
         </div>
 
         <!-- Fetch Status -->
@@ -135,7 +139,7 @@
 
         <!-- Live Preview of Detected Tags -->
         <div id="livePreviewBox" class="hidden rounded-xl bg-gray-50 border border-gray-200/80 px-3.5 py-2.5 flex flex-wrap items-center gap-2 text-xs">
-          <span class="text-gray-500 font-medium">預覽分類關鍵字：</span>
+          <span class="text-gray-500 font-medium">即時語意預判：</span>
           <div id="livePreviewTags" class="flex flex-wrap gap-1.5"></div>
         </div>
       </form>
@@ -149,7 +153,7 @@
             <input
               id="searchInput"
               type="text"
-              placeholder="搜尋網址、標題、摘要或標籤..."
+              placeholder="搜尋文案、網址、標題或標籤..."
               class="w-56 sm:w-64 rounded-xl border border-gray-200 bg-white pl-8 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
             <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -183,8 +187,8 @@
 
     <!-- Empty State -->
     <div id="emptyState" class="hidden text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
-      <p class="text-sm font-medium text-gray-600">目前沒有符合條件的網址紀錄</p>
-      <p class="text-xs text-gray-400 mt-1">在上方貼上任何網址，系統會讀取內容並自動加上關鍵字分類</p>
+      <p class="text-sm font-medium text-gray-600">目前沒有符合條件的紀錄</p>
+      <p class="text-xs text-gray-400 mt-1">在上方貼上任何網址或文案，系統會自動讀取內容並加上分類標籤</p>
     </div>
   </main>
 
@@ -194,9 +198,206 @@
       <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
         <div>
           <h2 class="text-base font-bold text-gray-900">自訂關鍵字分類規則</h2>
-          <p class="text-xs text-gray-500">當網址、標題或網頁內文包含特定關鍵字時，自動套用指定標籤</p>
+          <p class="text-xs text-gray-500">當網址、標題或文案內容包含特定關鍵字時，自動套用指定標籤</p>
         </div>
         <button id="closeRulesBtn" type="button" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto flex-1">
+        <form id="ruleForm" class="flex flex-col sm:flex-row gap-2">
+          <input id="ruleKeyword" type="text" placeholder="網域或文案關鍵字 (如: 拉麵, etf)" class="flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" required />
+          <input id="ruleTag" type="text" placeholder="分類標籤 (如: 美食)" class="sm:w-36 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" required />
+          <button type="submit" class="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 text-sm font-semibold transition shrink-0 cursor-pointer">新增</button>
+        </form>
+
+        <div id="rulesList" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Settings Modal -->
+  <div id="aiModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-gray-900">AI 語意理解設定（選填）</h2>
+          <p class="text-xs text-gray-500">填入 Gemini API Key 後，將由 AI 深度判讀文案內容與分類</p>
+        </div>
+        <button id="closeAiBtn" type="button" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="aiForm" class="p-5 space-y-4">
+        <div>
+          <label for="geminiKeyInput" class="block text-xs font-semibold text-gray-700 mb-1.5">Gemini API Key</label>
+          <input
+            id="geminiKeyInput"
+            type="password"
+            placeholder="貼上 AIza...（留空則使用內建語意計分引擎）"
+            class="w-full rounded-xl border border-gray-200 px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+          />
+          <p class="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
+            金鑰僅儲存在您自己瀏覽器的本機空間（localStorage），不會上傳至其他伺服器。若不填寫，系統仍會使用內建的加權語意計分引擎自動分類。
+          </p>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button type="button" id="clearAiKeyBtn" class="px-3 py-2 rounded-xl border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 cursor-pointer">
+            清除金鑰
+          </button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-xs font-semibold cursor-pointer">
+            儲存設定
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    const STORAGE_ITEMS_KEY = 'keep_url_organizer_items_v4';
+    const STORAGE_RULES_KEY = 'keep_url_organizer_rules_v4';
+    const STORAGE_AI_KEY = 'keep_url_organizer_gemini_key_v1';
+
+    const DEFAULT_RULES = [
+      { id: 'r1', keyword: 'youtube.com', tag: '影音娛樂' },
+      { id: 'r2', keyword: 'youtu.be', tag: '影音娛樂' },
+      { id: 'r3', keyword: 'netflix.com', tag: '影音娛樂' },
+      { id: 'r4', keyword: 'threads.net', tag: '社群貼文' },
+      { id: 'r5', keyword: 'threads.com', tag: '社群貼文' },
+      { id: 'r6', keyword: 'instagram.com', tag: '社群貼文' },
+      { id: 'r7', keyword: 'facebook.com', tag: '社群貼文' },
+      { id: 'r8', keyword: 'x.com', tag: '社群貼文' },
+      { id: 'r9', keyword: 'coupang.com', tag: '購物' },
+      { id: 'r10', keyword: 'shopee.tw', tag: '購物' },
+      { id: 'r11', keyword: 'momo.com', tag: '購物' },
+      { id: 'r12', keyword: 'zeczec.com', tag: '購物' },
+      { id: 'r13', keyword: 'archiveofourown.org', tag: '閱讀寫作' },
+      { id: 'r14', keyword: 'writinstone.com', tag: '閱讀寫作' },
+      { id: 'r15', keyword: 'medium.com', tag: '閱讀寫作' },
+      { id: 'r16', keyword: 'vocus.cc', tag: '閱讀寫作' },
+      { id: 'r17', keyword: 'github.com', tag: '技術開發' },
+      { id: 'r18', keyword: 'developers.google.com', tag: '技術開發' },
+      { id: 'r19', keyword: 'maps.google.com', tag: '美食旅遊' },
+      { id: 'r20', keyword: 'google.com/maps', tag: '美食旅遊' },
+      { id: 'r21', keyword: 'klook.com', tag: '旅遊' },
+      { id: 'r22', keyword: 'docs.google.com', tag: '工作筆記' },
+      { id: 'r23', keyword: 'dropbox.com', tag: '工作筆記' },
+      { id: 'r24', keyword: 'notion.so', tag: '工作筆記' }
+    ];
+
+    // 加權語意分類引擎：支援「即使沒寫出分類名稱，也能從語氣、動詞、名詞組合判斷是教學還是美食」
+    const SEMANTIC_MODELS = [
+      {
+        tag: '教學',
+        strong: ['教學', '教程', '步驟', '攻略', '懶人包', '實測', '手把手', '避坑', '指南', '設定教學', '怎麼用', '如何設定'],
+        medium: ['教你', '學會', '只要', '打開設定', '點選', '輸入', '下載', '安裝', '解決', '技巧', '秘訣', '原理', '方法', '原來這樣', '新手必看', '照著做', '第一步', '第二步', '第三步'],
+        patterns: [/(?:^|\n)\s*[1-9][.、)）]\s+/g, /step\s*[1-9]/gi, /(?:只要|只需).{1,12}(?:就能|就可以|即可)/g, /(?:教你|帶你).{1,10}(?:怎麼|如何|快速)/g]
+      },
+      {
+        tag: '美食',
+        strong: ['美食', '餐廳', '食記', '必吃', '必點', '菜單', '營業時間', '訂位', '低消', '公休', '湯頭', '入口即化', '美味'],
+        medium: ['好吃', '口感', '味道', '香濃', '濃郁', '酥脆', '鮮甜', '回訪', '排隊', '巷弄', '捷運', '早午餐', '宵夜', '甜點', '咖啡', '拉麵', '火鍋', '燒肉', '牛排', '義大利麵', '飲料', 'cp值', '飽足感', '內用', '外帶', '地址'],
+        patterns: [/\d{1,2}:\d{2}\s*[-~～]\s*\d{1,2}:\d{2}/g, /(?:週[一二三四五六日天]|星期[一二三四五六日天])公休/g, /捷運.{1,8}站/g]
+      },
+      {
+        tag: '食譜',
+        strong: ['食譜', '料理', '烹飪', '烘焙', '食材', '備料', '醬汁', '氣炸鍋', '烤箱'],
+        medium: ['克', '大匙', '小匙', 'ml', '分鐘', '小火', '中火', '大火', '拌勻', '醃製', '切丁', '切片', '下鍋', '起鍋', '做法', '減脂餐', '便當'],
+        patterns: [/\d+\s*(?:克|g|ml|大匙|小匙|匙|顆)/gi]
+      },
+      {
+        tag: '購物',
+        strong: ['優惠', '折扣', '團購', '開箱', '免運', '下單', '募資', '預購', '補貨'],
+        medium: ['價格', '價錢', '特價', '原價', '好物', '推薦買', '聯名', '周邊', '質感', '好用', '缺點', '優點', '評價', '連結在'],
+        patterns: [/(?:NT\$|\$|新台幣)\s*\d+/gi, /\d+\s*折/g]
+      },
+      {
+        tag: '旅遊',
+        strong: ['自由行', '行程', '住宿', '飯店', '民宿', '機票', '景點', '一日遊', 'check in'],
+        medium: ['交通', '接駁', '退房', '入住', '海景', '溫泉', '打卡', '門票', '預約', '出發', '機場', '車站'],
+        patterns: [/\d+\s*天\s*\d+\s*夜/g]
+      },
+      {
+        tag: '理財投資',
+        strong: ['投資', '理財', '高股息', 'etf', '配息', '存股', '報稅', '統編', '基金'],
+        medium: ['殖利率', '報酬率', '月配', '季配', '淨值', '手續費', '股價', '大盤', '利率', '定存', '帳戶', '扣款'],
+        patterns: [/\d+(?:\.\d+)?%/g]
+      },
+      {
+        tag: '美妝保養',
+        strong: ['保養', '護膚', '保濕', '精華液', '乳霜', '防曬', '敷臉', '彩妝'],
+        medium: ['肌膚', '皮膚', '毛孔', '乾燥', '出油', '敏感肌', '成分', '蘆薈', '羊毛脂', '角質', '修護', '吸收', '清爽', '不黏膩'],
+        patterns: []
+      },
+      {
+        tag: '閱讀寫作',
+        strong: ['小說', '同人', '連載', '故事', '寫作', '大綱', '書單', '文筆'],
+        medium: ['主角', '角色', '劇情', '結局', '番外', '章節', '靈感', '設定', '情感', '虐', '甜文', '作者'],
+        patterns: []
+      },
+      {
+        tag: '礦石占星',
+        strong: ['水晶', '龍龜', '星盤', '宿曜', '命理', '流年', '塔羅', '生命靈數'],
+        medium: ['手串', '手鍊', '紫水晶', '月光石', '拉長石', '幽靈', '螢石', '星座', '金星', '火星', '上升', '合盤', '能量'],
+        patterns: []
+      },
+      {
+        tag: '工作筆記',
+        strong: ['會議', '專案', '待辦', '報告', '簡報', '企劃', '客戶'],
+        medium: ['進度', '時程', '截止', '確認', '修改', '流程', '表單', '檔案', '聯絡', '簽核'],
+        patterns: []
+      }
+    ];
+
+    const ZH_STOPWORDS = new Set([
+      '一個', '我們', '你們', '他們', '這個', '那個', '這些', '那些', '什麼', '怎麼', '為什麼',
+      '可以', '可能', '應該', '需要', '想要', '已經', '正在', '因為', '所以', '但是', '如果',
+      '雖然', '然而', '以及', '或者', '而且', '不過', '只是', '就是', '還是', '非常', '比較',
+      '沒有', '不是', '不會', '不能', '不要', '自己', '大家', '知道', '覺得', '看到', '使用',
+      '透過', '關於', '進行', '提供', '發現', '了解', '分享', '推薦', '整理', '文章', '內容',
+      '網頁', '網站', '連結', '首頁', '登入', '註冊', '搜尋', '更多', '全部', '相關', '最新',
+      '時間', '今天', '現在', '時候', '地方', '方式', '問題', '答案', '功能', '系統', '平台',
+      '真的', '其實', '感覺', '這樣', '那樣', '一樣', '一下', '一起', '東西', '事情', '只要'
+    ]);
+
+    const EN_STOPWORDS = new Set([
+      'the', 'and', 'for', 'with', 'this', 'that', 'from', 'your', 'you', 'are', 'was', 'were',
+      'have', 'has', 'had', 'not', 'but', 'what', 'all', 'can', 'will', 'just', 'more', 'about',
+      'how', 'why', 'when', 'where', 'who', 'which', 'their', 'there', 'here', 'http', 'https',
+      'www', 'com', 'org', 'net', 'html', 'page', 'site', 'home', 'login', 'sign', 'read', 'post'
+    ]);
+
+    const SAMPLE_ITEMS = [
+      {
+        id: 'sample-1',
+        url: '',
+        title: '範例：板橋巷弄濃郁豚骨拉麵',
+        description: '湯頭熬了八小時超濃郁，叉燒入口即化，從捷運江子翠站走五分鐘就到，17:30 開始排隊，週二公休。',
+        domain: '語意自動分類',
+        tags: ['美食', '豚骨拉麵', '江子翠'],
+        savedToKeep: false,
+        contentFetched: false,
+        aiClassified: false,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'sample-2',
+        url: '',
+        title: '範例：手機省電與通知設定整理',
+        description: '1. 打開設定選單 2. 把背景重新整理關掉 3. 只要調整這三個地方，實測續航力多兩小時。',
+        domain: '語意自動分類',
+        tags: ['教學', '設定', '續航力'],
+        savedToKeephover:text-gray-700 hover:bg-gray-100 cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
